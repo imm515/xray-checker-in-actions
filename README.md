@@ -11,7 +11,7 @@ This repository contains a GitHub Action that regularly checks Xray configuratio
 
 ## How to use
 
-1. Fork this repository
+1. [Fork](https://github.com/kutovoys/xray-checker-in-actions/fork) this repository
 2. Configure repository secrets in your fork:
    - `SUBSCRIPTION_URL`: Your subscription URL
    - `PUSH_URL`: Metrics push URL
@@ -54,7 +54,7 @@ The checker will run automatically every 5 minutes after you set up the secrets.
 
 ## Как использовать
 
-1. Сделайте форк этого репозитория
+1. [Сделайте форк](https://github.com/kutovoys/xray-checker-in-actions/fork) этого репозитория
 2. Настройте секреты в вашем форке:
    - `SUBSCRIPTION_URL`: URL вашей подписки
    - `PUSH_URL`: URL для отправки метрик
