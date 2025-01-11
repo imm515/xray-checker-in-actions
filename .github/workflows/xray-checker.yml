@@ -1,0 +1,46 @@
+name: Run xray-checker
+
+on:
+  workflow_dispatch: # Ручной запуск
+    inputs:
+      args:
+        description: "Arguments for xray-checker"
+        required: true
+        default: "--help"
+  schedule:
+    - cron: "0/5 * * * *" # Запуск каждые 5 минут
+
+jobs:
+  run-xray-checker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get latest release info
+        id: latest-release
+        run: |
+          LATEST_URL=$(curl -s https://api.github.com/repos/kutovoys/xray-checker/releases/latest | grep "browser_download_url.*linux-amd64.tar.gz" | cut -d '"' -f 4)
+          echo "download_url=$LATEST_URL" >> $GITHUB_OUTPUT
+          echo "archive_name=$(basename $LATEST_URL)" >> $GITHUB_OUTPUT
+
+      - name: Create work directory
+        run: mkdir -p xray-checker
+
+      - name: Download release archive
+        working-directory: xray-checker
+        run: |
+          wget ${{ steps.latest-release.outputs.download_url }}
+          tar xzf ${{ steps.latest-release.outputs.archive_name }}
+
+      - name: Set execute permission
+        working-directory: xray-checker
+        run: chmod +x xray-checker
+
+      - name: Run xray-checker
+        working-directory: xray-checker
+        env:
+          INSTANCE: ${{ secrets.INSTANCE || 'github-actions' }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            ./xray-checker ${{ inputs.args }}
+          else
+            ./xray-checker --subscription-url=${{ secrets.SUBSCRIPTION_URL }} --metrics-push-url=${{ secrets.PUSH_URL }} --metrics-instance=$INSTANCE --run-once
+          fi
