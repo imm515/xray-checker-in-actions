@@ -7,8 +7,8 @@ on:
         description: "Arguments for xray-checker"
         required: true
         default: "--help"
-  schedule:
-    - cron: "0/5 * * * *" # Запуск каждые 5 минут
+  # schedule:
+    # - cron: "0/5 * * * *" # Запуск каждые 5 минут
 
 jobs:
   run-xray-checker:
