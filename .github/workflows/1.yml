@@ -7,8 +7,8 @@ on:
         description: "Xray Checker 参数"
         required: true
         default: "--help"
-  schedule:
-    - cron: "0/5 * * * *"  # 每5分钟运行一次
+  # schedule:
+    # - cron: "0/5 * * * *"  # 每5分钟运行一次
 
 jobs:
   run-xray-checker:
