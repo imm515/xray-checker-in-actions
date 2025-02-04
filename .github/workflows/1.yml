@@ -1,0 +1,68 @@
+name: Run xray-checker
+
+on:
+  workflow_dispatch:  # 手动触发
+    inputs:
+      args:
+        description: "Xray Checker 参数"
+        required: true
+        default: "--help"
+  schedule:
+    - cron: "0/5 * * * *"  # 每5分钟运行一次
+
+jobs:
+  run-xray-checker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: main
+
+      - name: 获取最新版本信息
+        id: latest-release
+        run: |
+          LATEST_URL=$(curl -s https://api.github.com/repos/kutovoys/xray-checker/releases/latest | grep "browser_download_url.*linux-amd64.tar.gz" | cut -d '"' -f 4)
+          echo "download_url=$LATEST_URL" >> $GITHUB_OUTPUT
+          echo "archive_name=$(basename $LATEST_URL)" >> $GITHUB_OUTPUT
+
+      - name: 创建工作目录
+        run: mkdir -p xray-checker
+
+      - name: 下载发布归档并解压
+        working-directory: xray-checker
+        run: |
+          wget ${{ steps.latest-release.outputs.download_url }}
+          tar xzf ${{ steps.latest-release.outputs.archive_name }}
+
+      - name: 设置执行权限
+        working-directory: xray-checker
+        run: chmod +x xray-checker
+
+      - name: 运行 Xray Checker 并保存日志
+        working-directory: xray-checker
+        env:
+          INSTANCE: ${{ secrets.INSTANCE || 'github-actions' }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            ./xray-checker ${{ inputs.args }} > ../xray.log 2>&1
+          else
+            ./xray-checker --subscription-url=${{ secrets.SUBSCRIPTION_URL }} > ../xray.log 2>&1
+          fi
+
+      - name: 配置 Git 用户信息
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+
+      - name: 提交并推送日志文件到 main 分支
+        run: |
+          # 将新生成的日志文件添加到版本库
+          git add xray.log
+          # 如果有改动，则提交并推送
+          if ! git diff --cached --quiet; then
+            git commit -m "Update xray-checker log"
+            git push origin main
+          else
+            echo "没有需要提交的改动。"
+          fi
