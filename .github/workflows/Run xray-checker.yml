@@ -2,11 +2,11 @@ name: 1 Run xray-checker
 
 on:
   workflow_dispatch: # Ручной запуск
-    inputs:
-      args:
-        description: "Arguments for xray-checker"
-        required: true
-        default: "--help"
+    # inputs:
+      # args:
+        # description: "Arguments for xray-checker"
+        # required: true
+        # default: "--help"
   # schedule:
     # - cron: "0/5 * * * *" # Запуск каждые 5 минут
 
@@ -39,8 +39,10 @@ jobs:
         env:
           INSTANCE: ${{ secrets.INSTANCE || 'github-actions' }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            ./xray-checker ${{ inputs.args }}
-          else
-            ./xray-checker --subscription-url=${{ secrets.SUBSCRIPTION_URL }} --metrics-push-url=${{ secrets.PUSH_URL }} --metrics-instance=$INSTANCE --run-once
-          fi
+          # if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # ./xray-checker ${{ inputs.args }}
+          # else
+            # ./xray-checker --subscription-url=${{ secrets.SUBSCRIPTION_URL }} --metrics-push-url=${{ secrets.PUSH_URL }} --metrics-instance=$INSTANCE --run-once
+          # fi
+          ./xray-checker --subscription-url=${{ secrets.SUBSCRIPTION_URL }} --metrics-push-url=${{ secrets.PUSH_URL }} --metrics-instance=$INSTANCE --run-once
+         
